@@ -1,0 +1,234 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SkillSwap 技能互换平台</title>
+    <meta
+      name="description"
+      content="SkillSwap 是一个技能互换平台原型，帮助用户发布我能教的和我想学的，并智能匹配学习伙伴。"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar" aria-label="平台导航">
+        <div class="brand">
+          <span class="brand-mark">S</span>
+          <div>
+            <strong>SkillSwap</strong>
+            <small>技能互换平台</small>
+          </div>
+        </div>
+
+        <nav class="nav-list" aria-label="主导航">
+          <a class="active" href="#matches">匹配广场</a>
+          <a href="#publish">发布需求</a>
+          <a href="#journey">交换流程</a>
+          <a href="#trust">信任机制</a>
+        </nav>
+
+        <div class="profile-card">
+          <div class="avatar">林</div>
+          <div>
+            <strong>林同学</strong>
+            <span>可交换 6 小时</span>
+          </div>
+        </div>
+      </aside>
+
+      <main>
+        <section class="workspace" id="matches">
+          <div class="topbar">
+            <div>
+              <p class="eyebrow">技能匹配工作台</p>
+              <h1>用自己会的技能，换一个坚持学下去的伙伴。</h1>
+            </div>
+            <button class="primary-action" id="openPost">发布技能交换</button>
+          </div>
+
+          <div class="insight-grid" aria-label="平台概览">
+            <article>
+              <span>今日新增</span>
+              <strong>128</strong>
+              <small>位用户发布技能</small>
+            </article>
+            <article>
+              <span>平均匹配</span>
+              <strong>92%</strong>
+              <small>基于教与学互补度</small>
+            </article>
+            <article>
+              <span>完成交换</span>
+              <strong>4,862</strong>
+              <small>节课后互评留存</small>
+            </article>
+          </div>
+
+          <section class="panel search-panel" aria-label="筛选匹配">
+            <div class="search-box">
+              <label for="skillSearch">想学什么</label>
+              <input id="skillSearch" type="search" placeholder="搜索 Python、摄影、吉他、英语..." />
+            </div>
+            <div class="filter-group" aria-label="技能分类筛选">
+              <button class="chip active" data-filter="全部">全部</button>
+              <button class="chip" data-filter="编程">编程</button>
+              <button class="chip" data-filter="创作">创作</button>
+              <button class="chip" data-filter="语言">语言</button>
+              <button class="chip" data-filter="生活">生活</button>
+            </div>
+          </section>
+
+          <section class="match-layout">
+            <div>
+              <div class="section-title">
+                <h2>推荐互换对象</h2>
+                <span id="resultCount">6 个匹配</span>
+              </div>
+              <div class="match-list" id="matchList"></div>
+            </div>
+
+            <aside class="panel exchange-preview" aria-label="交换计划预览">
+              <div class="section-title">
+                <h2>本周交换计划</h2>
+                <span>自动生成</span>
+              </div>
+              <div class="timeline">
+                <div>
+                  <time>周二 20:00</time>
+                  <strong>Python 入门调试</strong>
+                  <span>你学习，陈野教学</span>
+                </div>
+                <div>
+                  <time>周四 19:30</time>
+                  <strong>手机人像构图</strong>
+                  <span>你教学，宋然学习</span>
+                </div>
+                <div>
+                  <time>周六 10:00</time>
+                  <strong>吉他和弦练习</strong>
+                  <span>互相打卡复盘</span>
+                </div>
+              </div>
+            </aside>
+          </section>
+        </section>
+
+        <section class="feature-band" id="publish">
+          <div>
+            <p class="eyebrow">发布更轻量</p>
+            <h2>只填两句话：我能教什么，我想学什么。</h2>
+            <p>
+              原型把复杂资料拆成技能标签、可约时间、交换方式和目标成果，降低发布门槛，也让系统能立刻算出互补匹配。
+            </p>
+          </div>
+          <div class="publish-demo panel">
+            <div>
+              <label>我能教</label>
+              <strong>手机摄影、修图工作流</strong>
+            </div>
+            <div>
+              <label>我想学</label>
+              <strong>Python 自动化脚本</strong>
+            </div>
+            <div>
+              <label>交换方式</label>
+              <strong>1 对 1 视频课，每次 45 分钟</strong>
+            </div>
+          </div>
+        </section>
+
+        <section class="process-grid" id="journey">
+          <article>
+            <span>01</span>
+            <h3>发布技能卡</h3>
+            <p>描述能教、想学、水平和空闲时间，平台生成清晰的交换名片。</p>
+          </article>
+          <article>
+            <span>02</span>
+            <h3>互补匹配</h3>
+            <p>优先推荐双方需求互补、时间重合、目标相近的人，减少无效沟通。</p>
+          </article>
+          <article>
+            <span>03</span>
+            <h3>确认交换</h3>
+            <p>双方选择一次试学，系统给出课程提纲、课后打卡和互评提醒。</p>
+          </article>
+        </section>
+
+        <section class="trust-section" id="trust">
+          <div>
+            <p class="eyebrow">信任与持续性</p>
+            <h2>解决“找不到人”和“坚持不下去”。</h2>
+          </div>
+          <div class="trust-list">
+            <article>
+              <strong>技能证明</strong>
+              <span>作品集、证书、过往评价共同构成可信档案。</span>
+            </article>
+            <article>
+              <strong>时间银行</strong>
+              <span>每次教学获得时长，可继续兑换别人教学。</span>
+            </article>
+            <article>
+              <strong>试学保护</strong>
+              <span>首次 20 分钟试学后再确认，降低互换风险。</span>
+            </article>
+            <article>
+              <strong>成长打卡</strong>
+              <span>交换目标拆成每周成果，平台提醒复盘和互评。</span>
+            </article>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <dialog class="post-dialog" id="postDialog">
+      <form method="dialog" class="post-form" id="postForm">
+        <div class="dialog-head">
+          <div>
+            <p class="eyebrow">创建交换卡</p>
+            <h2>发布我的技能互换</h2>
+          </div>
+          <button class="icon-button" value="cancel" aria-label="关闭">×</button>
+        </div>
+        <label>
+          我能教
+          <input name="teach" required placeholder="例如：摄影、Excel、英语口语" />
+        </label>
+        <label>
+          我想学
+          <input name="learn" required placeholder="例如：Python、吉他、剪辑" />
+        </label>
+        <label>
+          我的目标
+          <textarea name="goal" rows="3" placeholder="希望通过交换达到什么成果"></textarea>
+        </label>
+        <div class="form-row">
+          <label>
+            可约时间
+            <select name="time">
+              <option>工作日晚上</option>
+              <option>周末上午</option>
+              <option>周末下午</option>
+              <option>时间灵活</option>
+            </select>
+          </label>
+          <label>
+            交换方式
+            <select name="mode">
+              <option>线上视频</option>
+              <option>线下面对面</option>
+              <option>作品点评</option>
+            </select>
+          </label>
+        </div>
+        <button class="primary-action" type="submit">生成交换卡</button>
+      </form>
+    </dialog>
+
+    <div class="toast" id="toast" role="status" aria-live="polite">已生成你的交换卡</div>
+
+    <script src="script.js"></script>
+  </body>
+</html>
