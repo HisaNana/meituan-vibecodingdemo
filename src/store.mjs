@@ -3,11 +3,21 @@ import { createInitialState } from "./data.mjs";
 export const STORAGE_KEY = "skillswap.v2";
 const DB_NAME = "skillswap-files";
 const STORE_NAME = "proofs";
+const LEGACY_HOMEWORK_STAGES = new Set(["待完成", "待搭子确认", "已确认", "已打卡"]);
+
+export function normalizeState(saved, initial = createInitialState()) {
+  const hasLegacyHomework = saved?.assignments?.some((item) => LEGACY_HOMEWORK_STAGES.has(item.status) || !item.partnerName);
+  return {
+    ...initial,
+    ...saved,
+    assignments: hasLegacyHomework ? initial.assignments : (saved?.assignments || initial.assignments)
+  };
+}
 
 export function loadState() {
   try {
     const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
-    if (saved?.version === 2) return { ...createInitialState(), ...saved };
+    if (saved?.version === 2) return normalizeState(saved);
   } catch (error) {
     console.warn("SkillSwap state could not be restored", error);
   }

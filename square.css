@@ -211,3 +211,123 @@
     width: 100%;
   }
 }
+
+/* Discovery cards: lesson-map inspired depth and original skill art */
+.skill-discovery {
+  position: relative;
+  min-height: 148px;
+  padding: 17px 15px;
+  grid-template-columns: 72px minmax(0, 1fr) 35px;
+  gap: 13px;
+  overflow: hidden;
+  border-width: 2px;
+  border-bottom-width: 7px;
+  border-radius: 21px;
+  background: linear-gradient(145deg, #f4ffe6, #e4ffc4);
+}
+
+.skill-discovery::after {
+  content: "";
+  position: absolute;
+  width: 75px;
+  height: 75px;
+  right: -31px;
+  top: -31px;
+  border-radius: 50%;
+  background: #fff7;
+}
+
+.skill-discovery.tone-1 { background: linear-gradient(145deg, #ecfaff, #cfedff); }
+.skill-discovery.tone-2 { background: linear-gradient(145deg, #fffbe7, #fff0ad); }
+.skill-discovery.tone-3 { background: linear-gradient(145deg, #fff4f8, #ffdce8); }
+
+.discovery-art {
+  width: 72px;
+  height: 72px;
+  display: grid;
+  place-items: center;
+  border: 2px solid #fff;
+  border-bottom: 6px solid #dce5e8;
+  border-radius: 21px;
+  background: #fff;
+  box-shadow: 0 5px 13px #29414d14;
+}
+
+.discovery-art svg {
+  width: 61px;
+  height: 61px;
+  overflow: visible;
+  fill: #28b7f2;
+  stroke: #087eb3;
+  stroke-width: 4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.tone-0 .discovery-art svg { fill: #76d934; stroke: #358b0a; }
+.tone-2 .discovery-art svg { fill: #ffd447; stroke: #b07d00; }
+.tone-3 .discovery-art svg { fill: #ff84ac; stroke: #b83b69; }
+.discovery-art .art-shadow { fill: #1736441d; stroke: none; transform: translateY(4px); }
+
+.discovery-copy {
+  min-width: 0;
+  align-self: center;
+}
+
+.discovery-copy small,
+.discovery-copy strong,
+.discovery-copy em {
+  display: block;
+}
+
+.discovery-copy small {
+  color: var(--green2);
+  font-size: 10px;
+  font-weight: 1000;
+  letter-spacing: .4px;
+}
+
+.discovery-copy strong {
+  margin: 2px 0 5px;
+  overflow: hidden;
+  color: var(--ink);
+  font-size: 17px;
+  line-height: 1.25;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.discovery-copy em {
+  color: #75838b;
+  font-size: 11px;
+  font-style: normal;
+  font-weight: 750;
+  line-height: 1.45;
+}
+
+.discovery-go {
+  width: 34px;
+  height: 34px;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  align-self: center;
+  border: 2px solid #0799d3;
+  border-bottom-width: 5px;
+  border-radius: 12px;
+  background: var(--blue);
+  color: #fff;
+  font-size: 18px;
+  font-weight: 1000;
+}
+
+.skill-discovery:hover .discovery-go { transform: translateX(2px); }
+
+@media (max-width: 1500px) and (min-width: 681px) {
+  .discovery-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 680px) {
+  .discovery-grid { grid-template-columns: repeat(4, 270px); }
+  .skill-discovery { min-height: 138px; }
+}

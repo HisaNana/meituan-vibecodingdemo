@@ -1,47 +1,48 @@
-export const ASSIGNMENT_STAGES = ["待完成", "待搭子确认", "已确认", "已打卡"];
+export const HOMEWORK_STAGES = ["待确认", "已领取", "已完成"];
 
-export function createAssignment(input, id = `assignment-${Date.now()}`) {
+export function createIncomingHomework(input, id = `homework-${Date.now()}`) {
   return {
     id,
     title: String(input.title || "").trim(),
     criteria: String(input.criteria || "").trim(),
-    due: String(input.due || "待协商").trim(),
+    due: String(input.due || "下次课前").trim(),
     course: String(input.course || "共学课程").trim(),
+    partnerId: input.partnerId || null,
+    partnerName: String(input.partnerName || "学习搭子").trim(),
     sessionId: input.sessionId || null,
-    status: "待完成",
+    status: "待确认",
     done: false,
     createdAt: new Date().toISOString()
   };
 }
 
-export function advanceAssignment(assignment) {
-  const current = assignment.status || (assignment.done ? "已确认" : "待完成");
-  const index = ASSIGNMENT_STAGES.indexOf(current);
-  if (index < 0 || index >= ASSIGNMENT_STAGES.length - 2) return { ...assignment, status: current };
+export function advanceHomework(homework) {
+  const current = HOMEWORK_STAGES.includes(homework.status)
+    ? homework.status
+    : homework.done ? "已完成" : "待确认";
+  const index = HOMEWORK_STAGES.indexOf(current);
+  const next = HOMEWORK_STAGES[Math.min(index + 1, HOMEWORK_STAGES.length - 1)];
   return {
-    ...assignment,
-    status: ASSIGNMENT_STAGES[index + 1],
-    submittedAt: index === 0 ? new Date().toISOString() : assignment.submittedAt,
-    confirmedAt: index === 1 ? new Date().toISOString() : assignment.confirmedAt
+    ...homework,
+    status: next,
+    done: next === "已完成",
+    acceptedAt: next === "已领取" ? new Date().toISOString() : homework.acceptedAt,
+    completedAt: next === "已完成" ? new Date().toISOString() : homework.completedAt
   };
 }
 
-export function assignmentToCheckin(assignment, profile = {}, id = `post-${Date.now()}`) {
-  if (assignment.status !== "已确认") throw new Error("作业需经搭子确认后才能转为成长打卡");
-  const author = profile.nickname || "我";
+export function createSharedNote(input, id = `note-${Date.now()}`) {
+  const body = [input.takeaway,input.question&&`待解决：${input.question}`,input.nextStep&&`下一步：${input.nextStep}`].filter(Boolean).join(" · ");
   return {
-    assignment: { ...assignment, status: "已打卡", done: true, checkedInAt: new Date().toISOString() },
-    post: {
-      id,
-      author,
-      avatar: author.slice(0, 1),
-      color: "green",
-      type: "阶段成果",
-      content: `完成了「${assignment.title}」：${assignment.criteria || "已通过搭子确认"}`,
-      likes: 0,
-      liked: false,
-      comments: 0,
-      time: "刚刚"
-    }
+    id,
+    sessionId: input.sessionId || null,
+    partnerId: input.partnerId || null,
+    title: String(input.title || "").trim(),
+    takeaway: String(input.takeaway || "").trim(),
+    question: String(input.question || "").trim(),
+    nextStep: String(input.nextStep || "").trim(),
+    body,
+    shareStatus: "已发给搭子",
+    updatedAt: "刚刚"
   };
 }
