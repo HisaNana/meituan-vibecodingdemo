@@ -2,6 +2,7 @@ import { PEOPLE, SKILLS, SLOT_LABELS } from "./data.mjs";
 import { rankMatches } from "./matching.mjs";
 import { EXCHANGE_STAGES, accountGate, advanceExchange, createExchange, validateRegistration } from "./workflow.mjs";
 import { clearProofBlobs, getProofBlob, loadState, resetState, saveProofBlob, saveState } from "./store.mjs";
+import { customSelect } from "./ui.mjs";
 
 const app = document.querySelector("#app");
 const modal = document.querySelector("#modal");
@@ -52,7 +53,7 @@ function pageHead(kicker, title) {
 function frame(content) {
   const route = currentRoute();
   const name = state.session ? state.profile.nickname : "体验访客";
-  app.innerHTML = `<div class="app-shell"><aside class="sidebar"><div class="brand"><span class="brand-mark">S</span><div><strong>SkillSwap</strong><span>交换技能，一起成长</span></div></div><button class="create-button" data-create>＋　发起交换</button><nav class="nav-list">${NAV.map(([path,icon,label])=>`<a class="nav-link ${route===path?"active":""}" href="#/${path}"><span class="nav-icon">${icon}</span>${label}</a>`).join("")}</nav><div class="side-profile">${avatarMarkup({avatar:name.slice(0,1),color:"violet"})}<div><strong>${esc(name)}</strong><span>${state.skillHours} 技能时数 · ${state.session?"体验账号":"未登录"}</span></div></div></aside><main class="main">${content}</main></div>`;
+  app.innerHTML = `<div class="app-shell"><aside class="sidebar"><div class="brand"><span class="brand-mark">S</span><div><strong>SkillSwap</strong><span>交换技能，一起成长</span></div></div><button class="create-button" data-create>＋　发起交换</button><nav class="nav-list">${NAV.map(([path,icon,label])=>`<a class="nav-link ${route===path?"active":""}" href="#/${path}"><span class="nav-icon">${icon}</span>${label}</a>`).join("")}</nav><div class="side-profile">${avatarMarkup({avatar:name.slice(0,1),color:"green"})}<div><strong>${esc(name)}</strong><span>${state.skillHours} 技能时数 · ${state.session?"体验账号":"未登录"}</span></div></div></aside><main class="main">${content}</main></div>`;
 }
 
 function matchCard(result) {
@@ -67,7 +68,7 @@ function miniPosts() { return state.posts.slice(0,2).map((post)=>`<div class="fe
 
 function squareView() {
   const ranked = getRanked(); const top = ranked[0];
-  frame(`${pageHead("星期日 · 发现新的可能", "技能广场")}<section class="hero"><div><h2>你想学的，刚好有人会。</h2><p>发布你会的技能，交换一段认真学习的时间。</p><button class="primary" data-radar>开启配对雷达 →</button></div>${top?`<div class="hero-match"><strong>今日最佳组合 · ${top.score}%</strong><div class="swap-route"><span>你学 ${esc(top.skillPair.learn)}</span><b class="route-arrow">⇄</b><span>你教 ${esc(top.skillPair.teach)}</span></div></div>`:""}</section><div class="content-grid"><section><div class="section-head"><h2>为你匹配</h2><button class="text-link" data-radar>查看全部 ${ranked.length} 个 →</button></div><div class="chips"><button class="chip active">推荐</button><button class="chip">今晚有空</button><button class="chip">线上</button><button class="chip">同城</button></div><div class="match-grid">${ranked.slice(0,4).map(matchCard).join("")}</div></section><aside class="side-stack"><section class="panel side-panel"><div class="section-head"><h3>本周共学</h3><a class="text-link" href="#/classroom">课程表</a></div>${scheduleList()}</section><section class="panel side-panel"><div class="section-head"><h3>同学新动态</h3><a class="text-link" href="#/social">进入同学圈</a></div>${miniPosts()}</section></aside></div>`);
+  frame(`${pageHead("星期日 · 发现新的可能", "技能广场")}<section class="hero"><div><h2>你想学的，<br>刚好有人会。</h2><p>发布你会的技能，交换一段认真学习的时间。</p><button class="primary" data-radar>开启配对雷达 →</button></div>${top?`<div class="hero-match"><strong>今日最佳组合 · ${top.score}%</strong><div class="swap-route"><span>你学 ${esc(top.skillPair.learn)}</span><b class="route-arrow">⇄</b><span>你教 ${esc(top.skillPair.teach)}</span></div></div>`:""}</section><div class="content-grid"><section><div class="section-head"><h2>为你匹配</h2><button class="text-link" data-radar>查看全部 ${ranked.length} 个 →</button></div><div class="chips"><button class="chip active">推荐</button><button class="chip">今晚有空</button><button class="chip">线上</button><button class="chip">同城</button></div><div class="match-grid">${ranked.slice(0,4).map(matchCard).join("")}</div></section><aside class="side-stack"><section class="panel side-panel"><div class="section-head"><h3>本周共学</h3><a class="text-link" href="#/classroom">课程表</a></div>${scheduleList()}</section><section class="panel side-panel"><div class="section-head"><h3>同学新动态</h3><a class="text-link" href="#/social">进入同学圈</a></div>${miniPosts()}</section></aside></div>`);
 }
 
 function resultCard(result) {
@@ -96,12 +97,12 @@ function classroomView() {
 }
 
 function socialView() {
-  frame(`${pageHead("不用每天打卡，也能看见成长", "同学圈")}<div class="feed-layout"><section><form class="panel composer" data-post-form><div class="person-row">${avatarMarkup({avatar:(state.profile.nickname||"我")[0],color:"violet"})}<div class="person-copy"><strong>分享一次真实进展</strong><span>作业、知识笔记或阶段成果</span></div></div><textarea name="content" required placeholder="今天学会了什么？哪里还卡住？"></textarea><div class="composer-actions"><select name="type"><option>阶段成果</option><option>作业</option><option>笔记</option></select><button class="primary">发布动态</button></div></form><div class="post-list">${state.posts.map((post)=>`<article class="panel post-card"><div class="person-row">${avatarMarkup(post)}<div class="person-copy"><strong>${esc(post.author)}</strong><span>${post.type} · ${post.time}</span></div></div><p>${esc(post.content)}</p><div class="post-actions"><button class="${post.liked?"liked":""}" data-like="${post.id}">♡ ${post.likes}</button><button data-comment="${post.id}">💬 ${post.comments}</button><button>↗ 分享</button></div></article>`).join("")}</div></section><aside class="side-stack"><section class="panel progress-card"><div class="section-head"><h3>本周成长</h3><span>58%</span></div><div class="progress-line"><span></span></div><p>完成 1 次共学、1 份作业和 2 条笔记。</p></section><section class="panel side-panel"><div class="section-head"><h3>待完成作业</h3></div>${state.assignments.map((a)=>`<div class="schedule-item"><span class="date-box">${a.done?"✓":"待办"}</span><div><strong>${esc(a.title)}</strong><span>${a.course} · ${a.due}</span></div></div>`).join("")}</section></aside></div>`);
+  frame(`${pageHead("不用每天打卡，也能看见成长", "同学圈")}<div class="feed-layout"><section><form class="panel composer" data-post-form><div class="person-row">${avatarMarkup({avatar:(state.profile.nickname||"我")[0],color:"green"})}<div class="person-copy"><strong>分享一次真实进展</strong><span>作业、知识笔记或阶段成果</span></div></div><textarea name="content" required placeholder="今天学会了什么？哪里还卡住？"></textarea><div class="composer-actions">${customSelect({name:"type",value:"阶段成果",options:["阶段成果","作业","笔记"],label:"动态类型",className:"compact"})}<button class="primary">发布动态</button></div></form><div class="post-list">${state.posts.map((post)=>`<article class="panel post-card"><div class="person-row">${avatarMarkup(post)}<div class="person-copy"><strong>${esc(post.author)}</strong><span>${post.type} · ${post.time}</span></div></div><p>${esc(post.content)}</p><div class="post-actions"><button class="${post.liked?"liked":""}" data-like="${post.id}">♡ ${post.likes}</button><button data-comment="${post.id}">💬 ${post.comments}</button><button>↗ 分享</button></div></article>`).join("")}</div></section><aside class="side-stack"><section class="panel progress-card"><div class="section-head"><h3>本周成长</h3><span>58%</span></div><div class="progress-line"><span></span></div><p>完成 1 次共学、1 份作业和 2 条笔记。</p></section><section class="panel side-panel"><div class="section-head"><h3>待完成作业</h3></div>${state.assignments.map((a)=>`<div class="schedule-item"><span class="date-box">${a.done?"✓":"待办"}</span><div><strong>${esc(a.title)}</strong><span>${a.course} · ${a.due}</span></div></div>`).join("")}</section></aside></div>`);
 }
 
 function profileView() {
   const p=state.profile; const proofMarkup=p.proofs.length?p.proofs.map((proof)=>`<div class="proof-card" data-proof-preview="${proof.id}"><span>▧<br>${esc(proof.name)}</span></div>`).join(""):`<div class="proof-card"><span>还没有证明材料<br>完善后可提高可信度</span></div>`;
-  frame(`${pageHead("技能、时间和学习成果都属于你", "成长档案")}<div class="profile-grid"><section class="panel profile-main profile-hero">${avatarMarkup({avatar:(p.nickname||"我")[0],color:"violet"})}<h2>${esc(p.nickname||"体验访客")}</h2><p>${esc(p.city)} · ${esc(p.mode)} · ${p.duration} 分钟/次</p><div class="stat-row"><div class="stat"><strong>${state.skillHours}</strong><span>技能时数</span></div><div class="stat"><strong>${state.sessions.length}</strong><span>共学课程</span></div><div class="stat"><strong>${state.notes.length}</strong><span>知识笔记</span></div></div><button class="primary wide" data-edit-profile>${state.session?"重新设置技能画像":"创建体验账号"}</button><button class="danger wide" style="margin-top:9px" data-reset>重置体验数据</button></section><div class="profile-stack"><section class="panel profile-block"><div class="section-head"><h3>我的技能画像</h3><button class="text-link" data-edit-profile>编辑</button></div><div class="skill-columns"><div class="skill-column"><h4>我想学</h4><div class="tag-list">${p.learns.map(x=>`<span class="tag">${esc(x.skill)} · 优先级 ${x.priority}</span>`).join("")}</div></div><div class="skill-column"><h4>我能教</h4><div class="tag-list">${p.teaches.map(x=>`<span class="tag">${esc(x.skill)} · Lv.${x.level}</span>`).join("")}</div></div></div></section><section class="panel profile-block"><div class="section-head"><h3>能力证明</h3><span>${p.proofs.length}/3</span></div><div class="proof-grid">${proofMarkup}</div></section><section class="panel profile-block"><div class="section-head"><h3>知识笔记</h3><a class="text-link" href="#/classroom">新增笔记</a></div>${state.notes.map(note=>`<div class="schedule-item"><span class="date-box">笔记</span><div><strong>${esc(note.title)}</strong><span>${esc(note.body)} · ${note.updatedAt}</span></div></div>`).join("")}</section></div></div>`); attachProofPreviews();
+  frame(`${pageHead("技能、时间和学习成果都属于你", "成长档案")}<div class="profile-grid"><section class="panel profile-main profile-hero">${avatarMarkup({avatar:(p.nickname||"我")[0],color:"green"})}<h2>${esc(p.nickname||"体验访客")}</h2><p>${esc(p.city)} · ${esc(p.mode)} · ${p.duration} 分钟/次</p><div class="stat-row"><div class="stat"><strong>${state.skillHours}</strong><span>技能时数</span></div><div class="stat"><strong>${state.sessions.length}</strong><span>共学课程</span></div><div class="stat"><strong>${state.notes.length}</strong><span>知识笔记</span></div></div><button class="primary wide" data-edit-profile>${state.session?"重新设置技能画像":"创建体验账号"}</button><button class="danger wide" style="margin-top:9px" data-reset>重置体验数据</button></section><div class="profile-stack"><section class="panel profile-block"><div class="section-head"><h3>我的技能画像</h3><button class="text-link" data-edit-profile>编辑</button></div><div class="skill-columns"><div class="skill-column"><h4>我想学</h4><div class="tag-list">${p.learns.map(x=>`<span class="tag">${esc(x.skill)} · 优先级 ${x.priority}</span>`).join("")}</div></div><div class="skill-column"><h4>我能教</h4><div class="tag-list">${p.teaches.map(x=>`<span class="tag">${esc(x.skill)} · Lv.${x.level}</span>`).join("")}</div></div></div></section><section class="panel profile-block"><div class="section-head"><h3>能力证明</h3><span>${p.proofs.length}/3</span></div><div class="proof-grid">${proofMarkup}</div></section><section class="panel profile-block"><div class="section-head"><h3>知识笔记</h3><a class="text-link" href="#/classroom">新增笔记</a></div>${state.notes.map(note=>`<div class="schedule-item"><span class="date-box">笔记</span><div><strong>${esc(note.title)}</strong><span>${esc(note.body)} · ${note.updatedAt}</span></div></div>`).join("")}</section></div></div>`); attachProofPreviews();
 }
 
 function render() {
@@ -117,11 +118,11 @@ function openRegistration(after) {
 function startOnboarding() { wizardDraft=structuredClone(state.profile); wizardStep=1; renderWizard(); }
 function selectedRows(kind) {
   const items=wizardDraft[kind]; const isLearn=kind==="learns";
-  return items.map((item,index)=>`<div class="selected-row"><strong>${esc(item.skill)}</strong><select data-level-kind="${kind}" data-level-index="${index}">${isLearn?`<option value="1" ${item.targetLevel==1?"selected":""}>目标：入门</option><option value="2" ${item.targetLevel==2?"selected":""}>目标：熟练</option><option value="3" ${item.targetLevel==3?"selected":""}>目标：进阶</option>`:`<option value="1" ${item.level==1?"selected":""}>水平：入门</option><option value="2" ${item.level==2?"selected":""}>水平：熟练</option><option value="3" ${item.level==3?"selected":""}>水平：专业</option>`}</select><button type="button" class="icon-button" data-remove-skill="${kind}" data-index="${index}">×</button></div>`).join("");
+  return items.map((item,index)=>`<div class="selected-row"><strong>${esc(item.skill)}</strong>${customSelect({value:isLearn?item.targetLevel:item.level,options:isLearn?[{value:1,label:"目标：入门"},{value:2,label:"目标：熟练"},{value:3,label:"目标：进阶"}]:[{value:1,label:"水平：入门"},{value:2,label:"水平：熟练"},{value:3,label:"水平：专业"}],label:isLearn?"目标水平":"教学水平",data:{"level-kind":kind,"level-index":index},className:"drop-up"})}<button type="button" class="icon-button remove-button" data-remove-skill="${kind}" data-index="${index}" aria-label="移除 ${esc(item.skill)}">×</button></div>`).join("");
 }
 function skillPicker(kind) { const chosen=new Set(wizardDraft[kind].map(x=>x.skill));return `<div class="skill-selector">${SKILLS.map(skill=>`<button type="button" class="skill-option ${chosen.has(skill)?"selected":""}" data-skill-kind="${kind}" data-skill="${skill}">${skill}</button>`).join("")}</div><div class="selected-skills">${selectedRows(kind)}</div>`; }
 function renderWizard() {
-  const body=wizardStep===1?`<p>选择 1–5 项想学的内容，并设置每项优先级和目标水平。</p>${skillPicker("learns")}`:wizardStep===2?`<p>选择 1–5 项能教的技能，能力证明会参与可信度评分。</p>${skillPicker("teaches")}<label class="upload-zone">＋ 上传证书、奖项、作品或短视频（最多3项，单项20MB）<input id="proofInput" type="file" multiple accept="image/*,video/*,.pdf"></label><div class="file-list">${wizardDraft.proofs.map((proof,index)=>`<div class="file-item"><span>${esc(proof.name)}</span><button type="button" class="text-link" data-remove-proof="${index}">删除</button></div>`).join("")}</div>`:`<p>选择你通常能上课的时间。匹配时会计算真实重叠时段。</p><div class="schedule-grid">${Object.entries(SLOT_LABELS).map(([id,label])=>`<button type="button" class="schedule-option ${wizardDraft.availability.includes(id)?"selected":""}" data-slot="${id}">${label}</button>`).join("")}</div><div class="form-grid two" style="margin-top:16px"><label class="field">上课方式<select data-pref="mode"><option ${wizardDraft.mode==="线上"?"selected":""}>线上</option><option ${wizardDraft.mode==="线下"?"selected":""}>线下</option><option ${wizardDraft.mode==="均可"?"selected":""}>均可</option></select></label><label class="field">所在城市<input data-pref="city" value="${esc(wizardDraft.city)}"></label><label class="field">单次时长<select data-pref="duration"><option value="20">20 分钟试学</option><option value="45" ${wizardDraft.duration==45?"selected":""}>45 分钟</option><option value="60" ${wizardDraft.duration==60?"selected":""}>60 分钟</option><option value="90" ${wizardDraft.duration==90?"selected":""}>90 分钟</option></select></label></div>`;
+  const body=wizardStep===1?`<p class="wizard-intro">选择 1–5 项想学的内容，并设置每项目标水平。</p>${skillPicker("learns")}`:wizardStep===2?`<p class="wizard-intro">选择 1–5 项能教的技能，能力证明会参与可信度评分。</p>${skillPicker("teaches")}<label class="upload-zone">＋ 上传证书、奖项、作品或短视频（最多3项，单项20MB）<input id="proofInput" type="file" multiple accept="image/*,video/*,.pdf"></label><div class="file-list">${wizardDraft.proofs.map((proof,index)=>`<div class="file-item"><span>${esc(proof.name)}</span><button type="button" class="text-link" data-remove-proof="${index}">删除</button></div>`).join("")}</div>`:`<p class="wizard-intro">选择你通常能上课的时间。匹配时会计算真实重叠时段。</p><div class="schedule-grid">${Object.entries(SLOT_LABELS).map(([id,label])=>`<button type="button" class="schedule-option ${wizardDraft.availability.includes(id)?"selected":""}" data-slot="${id}">${label}</button>`).join("")}</div><div class="form-grid two wizard-preferences"><label class="field">上课方式${customSelect({value:wizardDraft.mode,options:["线上","线下","均可"],label:"上课方式",data:{pref:"mode"}})}</label><label class="field">所在城市<input data-pref="city" value="${esc(wizardDraft.city)}"></label><label class="field">单次时长${customSelect({value:wizardDraft.duration,options:[{value:20,label:"20 分钟试学"},{value:45,label:"45 分钟"},{value:60,label:"60 分钟"},{value:90,label:"90 分钟"}],label:"单次时长",data:{pref:"duration"}})}</label></div>`;
   openModal(`<div class="modal-body"><div class="modal-head"><div><p>技能画像 · ${wizardStep}/3</p><h2>${["你最想学什么？","哪些技能可以分享？","什么时候方便共学？"][wizardStep-1]}</h2></div><button type="button" class="close" data-close>×</button></div><div class="wizard-progress">${[1,2,3].map(i=>`<span class="${i<=wizardStep?"active":""}"></span>`).join("")}</div>${body}<div class="modal-actions">${wizardStep>1?`<button class="ghost" data-wizard-back>上一步</button>`:""}<button class="primary" data-wizard-next>${wizardStep===3?"完成并查看匹配":"下一步"}</button></div></div>`);
 }
 
@@ -131,7 +132,7 @@ function openScore(partnerId) {
 }
 function openApplication(partnerId) {
   const result=rankMatches(state.profile,[person(partnerId)])[0]; const slots=result.sharedSlots.length?result.sharedSlots:state.profile.availability;
-  openModal(`<form class="modal-body" data-application data-partner="${partnerId}"><div class="modal-head"><div><p>${result.type}</p><h2>向 ${result.partner.name} 发起交换</h2></div><button type="button" class="close" data-close>×</button></div><div class="skill-pair"><span>我想学<strong>${result.skillPair.learn}</strong></span><b>⇄</b><span>我能教<strong>${result.skillPair.teach}</strong></span></div><div class="form-grid two" style="margin-top:17px"><label class="field">课程类型<select name="lessonType"><option>20分钟试学</option><option>正式课程</option></select></label><label class="field">建议时间<select name="slot">${slots.map(slot=>`<option value="${slot}">${slotLabel(slot)}</option>`).join("")}</select></label></div><label class="field" style="margin-top:14px">想对TA说<textarea name="message" rows="3">你好！我们的技能和时间都很合适，想先一起完成一次小目标。</textarea></label><div class="modal-note" style="margin-top:14px">体验模式：示例伙伴会自动回应，方便完整体验交换流程。</div><div class="modal-actions"><button type="button" class="ghost" data-close>取消</button><button class="primary">发送申请</button></div></form>`);
+  openModal(`<form class="modal-body" data-application data-partner="${partnerId}"><div class="modal-head"><div><p>${result.type}</p><h2>向 ${result.partner.name} 发起交换</h2></div><button type="button" class="close" data-close>×</button></div><div class="skill-pair"><span>我想学<strong>${result.skillPair.learn}</strong></span><b>⇄</b><span>我能教<strong>${result.skillPair.teach}</strong></span></div><div class="form-grid two application-prefs"><label class="field">课程类型${customSelect({name:"lessonType",value:"20分钟试学",options:["20分钟试学","正式课程"],label:"课程类型"})}</label><label class="field">建议时间${customSelect({name:"slot",value:slots[0],options:slots.map(slot=>({value:slot,label:slotLabel(slot)})),label:"建议时间"})}</label></div><label class="field application-message">想对TA说<textarea name="message" rows="3">你好！我们的技能和时间都很合适，想先一起完成一次小目标。</textarea></label><div class="modal-note application-note">体验模式：示例伙伴会自动回应，方便完整体验交换流程。</div><div class="modal-actions"><button type="button" class="ghost" data-close>取消</button><button class="primary">发送申请</button></div></form>`);
 }
 
 async function attachProofPreviews() {
@@ -150,8 +151,52 @@ async function handleMedia(action, button) {
   } catch { showToast("未获得设备权限，仍可继续使用课堂笔记"); }
 }
 
+function closeSelectMenus(except = null) {
+  document.querySelectorAll(".select-shell.open").forEach((shell) => {
+    if (shell === except) return;
+    shell.classList.remove("open");
+    shell.querySelector(".select-trigger")?.setAttribute("aria-expanded", "false");
+    const menu = shell.querySelector(".select-menu");
+    if (menu) menu.hidden = true;
+  });
+}
+
+function toggleSelect(shell) {
+  const willOpen = !shell.classList.contains("open");
+  closeSelectMenus(shell);
+  shell.classList.toggle("open", willOpen);
+  shell.querySelector(".select-trigger")?.setAttribute("aria-expanded", String(willOpen));
+  const menu = shell.querySelector(".select-menu");
+  if (menu) menu.hidden = !willOpen;
+  if (willOpen) shell.querySelector(".select-option.selected")?.focus();
+}
+
+function chooseSelectOption(shell, option) {
+  const value = option.dataset.selectValue;
+  const label = option.querySelector("span")?.textContent || value;
+  const input = shell.querySelector("[data-select-input]");
+  if (input) input.value = value;
+  shell.querySelector(".select-trigger span").textContent = label;
+  shell.querySelectorAll(".select-option").forEach((item) => {
+    const selected = item === option;
+    item.classList.toggle("selected", selected);
+    item.setAttribute("aria-selected", String(selected));
+  });
+  if (shell.dataset.levelKind) {
+    const item = wizardDraft[shell.dataset.levelKind][Number(shell.dataset.levelIndex)];
+    if (shell.dataset.levelKind === "learns") item.targetLevel = Number(value);
+    else item.level = Number(value);
+  }
+  if (shell.dataset.pref) wizardDraft[shell.dataset.pref] = shell.dataset.pref === "duration" ? Number(value) : value;
+  closeSelectMenus();
+  shell.querySelector(".select-trigger")?.focus();
+}
+
 document.addEventListener("click", (event) => {
-  const target=event.target.closest("button,a"); if(!target)return;
+  const target=event.target.closest("button,a"); if(!target){closeSelectMenus();return;}
+  if(target.matches(".select-trigger")){toggleSelect(target.closest(".select-shell"));return;}
+  if(target.matches(".select-option")){chooseSelectOption(target.closest(".select-shell"),target);return;}
+  if(!target.closest(".select-shell"))closeSelectMenus();
   if(target.dataset.close!==undefined){closeModal();return;}
   if(target.dataset.create!==undefined||target.dataset.editProfile!==undefined){requireAccount(()=>{startOnboarding();});return;}
   if(target.dataset.radar!==undefined){location.hash="#/matches";return;}
@@ -176,8 +221,7 @@ document.addEventListener("click", (event) => {
 
 document.addEventListener("change", async (event) => {
   const target=event.target;
-  if(target.matches("[data-level-kind]")){const item=wizardDraft[target.dataset.levelKind][Number(target.dataset.levelIndex)];if(target.dataset.levelKind==="learns")item.targetLevel=Number(target.value);else item.level=Number(target.value);return;}
-  if(target.matches("[data-pref]")){wizardDraft[target.dataset.pref]=target.dataset.pref==="duration"?Number(target.value):target.value;return;}
+  if(target.matches("input[data-pref]")){wizardDraft[target.dataset.pref]=target.value;return;}
   if(target.id==="proofInput") { const files=[...target.files];for(const file of files){if(wizardDraft.proofs.length>=3){showToast("最多上传 3 项证明");break;}if(file.size>20*1024*1024){showToast(`${file.name} 超过 20MB`);continue;}const id=`proof-${Date.now()}-${Math.random().toString(16).slice(2)}`;await saveProofBlob(id,file);wizardDraft.proofs.push({id,name:file.name,type:file.type||"application/pdf",size:file.size});}renderWizard(); }
 });
 
@@ -188,9 +232,21 @@ document.addEventListener("submit", (event) => {
   if(event.target.matches("[data-application]")){event.preventDefault();const data=Object.fromEntries(new FormData(event.target));const result=rankMatches(state.profile,[person(event.target.dataset.partner)])[0];const exchange=createExchange({partnerId:event.target.dataset.partner,skillPair:{learn:result.skillPair.learn,teach:result.skillPair.teach},slot:data.slot,lessonType:data.lessonType});exchange.messages.push({id:`m-${Date.now()}`,sender:"me",text:data.message});state.exchanges.unshift(exchange);state.selectedConversation=exchange.id;persist();closeModal();showToast("交换申请已发送，示例伙伴将自动回应");location.hash="#/journey";setTimeout(()=>{const item=state.exchanges.find(x=>x.id===exchange.id);if(item&&item.status==="待回应"){state.exchanges[state.exchanges.indexOf(item)]=advanceExchange(item);item.messages.push({id:`m-${Date.now()}`,sender:"partner",text:"收到！这个组合很适合我，先从一次试学开始吧。"});persist();render();showToast("对方已接受，交换配对成功");}},1200);return;}
   if(event.target.matches("[data-chat-form]")){event.preventDefault();const input=event.target.elements.message;const item=state.exchanges.find(x=>x.id===state.selectedConversation)||state.exchanges[0];item.messages.push({id:`m-${Date.now()}`,sender:"me",text:input.value.trim()});persist();render();setTimeout(()=>{item.messages.push({id:`m-${Date.now()}`,sender:"partner",text:"好呀，我们把目标拆成一个这周能完成的小任务吧。"});persist();render();},650);return;}
   if(event.target.matches("[data-note-form]")){event.preventDefault();const data=Object.fromEntries(new FormData(event.target));state.notes.unshift({id:`note-${Date.now()}`,title:data.title,body:data.body,updatedAt:"刚刚"});persist();event.target.reset();showToast("课堂笔记已保存到成长档案");return;}
-  if(event.target.matches("[data-post-form]")){event.preventDefault();const data=Object.fromEntries(new FormData(event.target));state.posts.unshift({id:`post-${Date.now()}`,author:state.profile.nickname||"我",avatar:(state.profile.nickname||"我")[0],color:"violet",type:data.type,content:data.content,likes:0,liked:false,comments:0,time:"刚刚"});persist();render();showToast("学习动态已发布");return;}
+  if(event.target.matches("[data-post-form]")){event.preventDefault();const data=Object.fromEntries(new FormData(event.target));state.posts.unshift({id:`post-${Date.now()}`,author:state.profile.nickname||"我",avatar:(state.profile.nickname||"我")[0],color:"green",type:data.type,content:data.content,likes:0,liked:false,comments:0,time:"刚刚"});persist();render();showToast("学习动态已发布");return;}
 });
 
 modal.addEventListener("click", (event) => { if(event.target===modal)closeModal(); });
+document.addEventListener("keydown", (event) => {
+  const shell=event.target.closest?.(".select-shell");
+  if(!shell)return;
+  const options=[...shell.querySelectorAll(".select-option")];
+  if(event.key==="Escape"){event.preventDefault();closeSelectMenus();shell.querySelector(".select-trigger")?.focus();return;}
+  if(event.target.matches(".select-trigger")&&(event.key==="Enter"||event.key===" ")){event.preventDefault();toggleSelect(shell);return;}
+  if(event.target.matches(".select-option")){
+    const index=options.indexOf(event.target);
+    if(event.key==="ArrowDown"||event.key==="ArrowUp"){event.preventDefault();options[(index+(event.key==="ArrowDown"?1:-1)+options.length)%options.length]?.focus();}
+    if(event.key==="Enter"||event.key===" "){event.preventDefault();chooseSelectOption(shell,event.target);}
+  }
+});
 window.addEventListener("hashchange", ()=>{searchTerm="";render();});
 if(!location.hash)location.hash="#/square";else render();
