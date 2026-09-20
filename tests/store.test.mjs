@@ -16,3 +16,13 @@ test("current incoming homework survives refresh", () => {
   const restored = normalizeState(saved, initial);
   assert.deepEqual(restored.assignments, saved.assignments);
 });
+
+test("legacy assignment check-in posts are removed during migration", () => {
+  const initial = { version: 2, assignments: [], posts: [{ id: "demo", content: "正常动态" }] };
+  const saved = { version: 2, assignments: [], posts: [
+    { id: "legacy", content: "完成了作业：已通过搭子确认" },
+    { id: "mine", content: "今天学会了循环" }
+  ] };
+  const restored = normalizeState(saved, initial);
+  assert.deepEqual(restored.posts.map(post => post.id), ["mine"]);
+});

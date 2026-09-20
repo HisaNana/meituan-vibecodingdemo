@@ -7,10 +7,12 @@ const LEGACY_HOMEWORK_STAGES = new Set(["待完成", "待搭子确认", "已确�
 
 export function normalizeState(saved, initial = createInitialState()) {
   const hasLegacyHomework = saved?.assignments?.some((item) => LEGACY_HOMEWORK_STAGES.has(item.status) || !item.partnerName);
+  const posts = (saved?.posts || initial.posts || []).filter((post) => !String(post.content || "").includes("已通过搭子确认"));
   return {
     ...initial,
     ...saved,
-    assignments: hasLegacyHomework ? initial.assignments : (saved?.assignments || initial.assignments)
+    assignments: hasLegacyHomework ? initial.assignments : (saved?.assignments || initial.assignments),
+    posts
   };
 }
 
