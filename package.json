@@ -1,0 +1,10 @@
+{
+  "name": "skillswap-demo",
+  "version": "2.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test tests/*.test.mjs",
+    "check": "node --check src/app.mjs && node --check src/data.mjs && node --check src/store.mjs && node --check src/matching.mjs && node --check src/workflow.mjs"
+  }
+}
