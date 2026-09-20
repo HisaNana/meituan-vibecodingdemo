@@ -1,0 +1,213 @@
+.avatar:has(img) {
+  overflow: hidden;
+  padding: 0;
+  background: #efffdc;
+  border-color: #9ddf6a;
+}
+
+.avatar img {
+  width: 112%;
+  height: 112%;
+  display: block;
+  object-fit: contain;
+  object-position: center top;
+  transform: translate(-5%, -2%);
+}
+
+.match-card .avatar {
+  width: 52px;
+  height: 52px;
+  border-radius: 17px;
+}
+
+.feed-mini .avatar img,
+.conversation .avatar img {
+  width: 116%;
+  height: 116%;
+  transform: translate(-7%, -3%);
+}
+
+.remote-video .avatar:has(img) {
+  width: 180px;
+  height: 180px;
+  border: 0;
+  background: transparent;
+}
+
+.remote-video .avatar img {
+  width: 100%;
+  height: 100%;
+  transform: none;
+}
+
+.discovery-section {
+  margin-top: 30px;
+}
+
+.eyebrow {
+  margin: 0 0 2px;
+  color: var(--green2);
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.section-note,
+.result-count {
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.discovery-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 13px;
+}
+
+.skill-discovery {
+  min-width: 0;
+  padding: 16px;
+  display: grid;
+  grid-template-columns: 48px minmax(0, 1fr);
+  gap: 11px;
+  align-items: center;
+  border: 2px solid #b7e78f;
+  border-bottom-width: 5px;
+  border-radius: 17px;
+  background: var(--green-soft);
+  color: var(--ink);
+  text-align: left;
+  transition: transform .15s ease, filter .15s ease;
+}
+
+.skill-discovery:hover {
+  filter: brightness(1.015);
+  transform: translateY(-2px);
+}
+
+.skill-discovery:active {
+  transform: translateY(2px);
+  border-bottom-width: 2px;
+}
+
+.skill-discovery.tone-1 {
+  border-color: #9eddfa;
+  background: var(--blue-soft);
+}
+
+.skill-discovery.tone-2 {
+  border-color: #f2d363;
+  background: #fff9d9;
+}
+
+.skill-discovery.tone-3 {
+  border-color: #f3b2c7;
+  background: #fff0f5;
+}
+
+.discovery-icon {
+  width: 48px;
+  height: 48px;
+  display: grid;
+  place-items: center;
+  border: 2px solid #ffffffaa;
+  border-radius: 15px;
+  background: #fff;
+  color: var(--blue2);
+  font-size: 22px;
+  font-weight: 1000;
+}
+
+.skill-discovery strong,
+.skill-discovery small {
+  display: block;
+}
+
+.skill-discovery strong {
+  overflow: hidden;
+  font-size: 15px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.skill-discovery small {
+  margin-top: 3px;
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.45;
+}
+
+.skill-discovery > b {
+  grid-column: 2;
+  color: var(--blue2);
+  font-size: 12px;
+}
+
+.hall-filters {
+  margin-bottom: 18px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.hall-filters .chips {
+  margin-bottom: 0;
+}
+
+.skill-filter {
+  z-index: 5;
+  width: 184px;
+  flex: 0 0 auto;
+}
+
+.filter-empty {
+  padding: 42px 22px;
+  text-align: center;
+}
+
+.filter-empty span {
+  display: block;
+  font-size: 19px;
+  font-weight: 900;
+}
+
+.filter-empty p {
+  margin: 6px 0 18px;
+  color: var(--muted);
+}
+
+@media (max-width: 1180px) {
+  .discovery-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 680px) {
+  .discovery-section {
+    overflow: hidden;
+  }
+
+  .discovery-section .section-note {
+    display: none;
+  }
+
+  .discovery-grid {
+    grid-template-columns: repeat(4, 235px);
+    overflow-x: auto;
+    padding-bottom: 8px;
+    scroll-snap-type: x proximity;
+  }
+
+  .skill-discovery {
+    scroll-snap-align: start;
+  }
+
+  .hall-filters {
+    display: grid;
+  }
+
+  .skill-filter {
+    width: 100%;
+  }
+}

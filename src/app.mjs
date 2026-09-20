@@ -3,6 +3,7 @@ import { rankMatches } from "./matching.mjs";
 import { EXCHANGE_STAGES, accountGate, advanceExchange, createExchange, validateRegistration } from "./workflow.mjs";
 import { clearProofBlobs, getProofBlob, loadState, resetState, saveProofBlob, saveState } from "./store.mjs";
 import { customSelect } from "./ui.mjs";
+import { filterHallMatches, recommendUnselectedSkills } from "./discovery.mjs";
 
 const app = document.querySelector("#app");
 const modal = document.querySelector("#modal");
@@ -13,6 +14,7 @@ let pendingPartnerId = null;
 let wizardDraft = null;
 let wizardStep = 1;
 let mediaStream = null;
+let hallFilters = { evening: false, online: false, local: false, skill: "" };
 
 const NAV = [
   ["square", "⌂", "技能广场"], ["matches", "✦", "配对雷达"], ["journey", "⇄", "交换旅程"],
@@ -29,7 +31,11 @@ function person(id) { return PEOPLE.find((item) => item.id === id); }
 function currentRoute() { return (location.hash.replace(/^#\//, "").split("/")[0] || "square"); }
 function showToast(message) { toast.textContent = message; toast.classList.add("show"); setTimeout(() => toast.classList.remove("show"), 2300); }
 function slotLabel(slot) { return SLOT_LABELS[slot] || slot || "时间待协商"; }
-function avatarMarkup(item, size = "") { return `<span class="avatar ${item.color || ""} ${size}">${esc(item.avatar || item.name?.slice(0,1) || "我")}</span>`; }
+function avatarMarkup(item, size = "") {
+  const matchedPerson=PEOPLE.find((candidate)=>candidate.id===item.id||candidate.name===item.name||candidate.name===item.author);
+  const image=item.image||matchedPerson?.image;
+  return `<span class="avatar ${item.color || matchedPerson?.color || ""} ${size}">${image?`<img src="${image}" alt="${esc(item.name||item.author||"学习伙伴")}的卡通头像">`:esc(item.avatar || item.name?.slice(0,1) || "我")}</span>`;
+}
 function closeModal() { if (modal.open) modal.close(); modal.innerHTML = ""; }
 function openModal(content) { modal.innerHTML = content; if (!modal.open) modal.showModal(); }
 function requireAccount(callback) {
@@ -66,9 +72,16 @@ function scheduleList() {
 }
 function miniPosts() { return state.posts.slice(0,2).map((post)=>`<div class="feed-mini">${avatarMarkup(post)}<div><strong>${esc(post.author)} · ${post.type}</strong><p>${esc(post.content)}</p><span class="feed-meta">♡ ${post.likes}　💬 ${post.comments}　· ${post.time}</span></div></div>`).join(""); }
 
+const SKILL_ICONS={"Python 自动化":"⚙","前端开发":"◇","数据分析":"▥","Excel 数据分析":"▦","手机摄影":"◉","人像摄影":"◎","旅行摄影":"⌁","视频剪辑":"▶","短视频运营":"↗","英语口语":"A","日语入门":"あ","吉他弹唱":"♫","尤克里里":"♪","咖啡拉花":"☕","健身入门":"◆","平面设计":"✦","PPT 设计":"▤"};
+function discoveryCard(item,index){return `<button class="skill-discovery tone-${index%4}" data-discover-skill="${esc(item.skill)}"><span class="discovery-icon">${SKILL_ICONS[item.skill]||"✦"}</span><span><strong>${esc(item.skill)}</strong><small>${item.mentors} 位伙伴能教 · ${item.eveningMentors} 位晚间有空</small></span><b>去看看 →</b></button>`;}
+
 function squareView() {
-  const ranked = getRanked(); const top = ranked[0];
-  frame(`${pageHead("星期日 · 发现新的可能", "技能广场")}<section class="hero"><div><h2>你想学的，<br>刚好有人会。</h2><p>发布你会的技能，交换一段认真学习的时间。</p><button class="primary" data-radar>开启配对雷达 →</button></div>${top?`<div class="hero-match"><strong>今日最佳组合 · ${top.score}%</strong><div class="swap-route"><span>你学 ${esc(top.skillPair.learn)}</span><b class="route-arrow">⇄</b><span>你教 ${esc(top.skillPair.teach)}</span></div></div>`:""}</section><div class="content-grid"><section><div class="section-head"><h2>为你匹配</h2><button class="text-link" data-radar>查看全部 ${ranked.length} 个 →</button></div><div class="chips"><button class="chip active">推荐</button><button class="chip">今晚有空</button><button class="chip">线上</button><button class="chip">同城</button></div><div class="match-grid">${ranked.slice(0,4).map(matchCard).join("")}</div></section><aside class="side-stack"><section class="panel side-panel"><div class="section-head"><h3>本周共学</h3><a class="text-link" href="#/classroom">课程表</a></div>${scheduleList()}</section><section class="panel side-panel"><div class="section-head"><h3>同学新动态</h3><a class="text-link" href="#/social">进入同学圈</a></div>${miniPosts()}</section></aside></div>`);
+  const allRanked=getRanked(); const ranked=filterHallMatches(allRanked,hallFilters,state.profile); const top=allRanked[0];
+  const discoveries=recommendUnselectedSkills(state.profile,PEOPLE); const noFilters=!hallFilters.evening&&!hallFilters.online&&!hallFilters.local&&!hallFilters.skill;
+  const offeredSkills=[...new Set(PEOPLE.flatMap((item)=>item.teaches.map(({skill})=>skill)))].sort((a,b)=>a.localeCompare(b,"zh-CN"));
+  const filters=`<div class="hall-filters"><div class="chips"><button class="chip ${noFilters?"active":""}" data-clear-hall>推荐</button><button class="chip ${hallFilters.evening?"active":""}" data-hall-filter="evening">今晚有空</button><button class="chip ${hallFilters.online?"active":""}" data-hall-filter="online">线上</button><button class="chip ${hallFilters.local?"active":""}" data-hall-filter="local">同城</button></div>${customSelect({value:hallFilters.skill,options:[{value:"",label:"按技能筛选"},...offeredSkills.map(skill=>({value:skill,label:skill}))],label:"按技能筛选",data:{"hall-skill":"true"},className:"skill-filter"})}</div>`;
+  const results=ranked.length?`<div class="match-grid">${ranked.slice(0,6).map(matchCard).join("")}</div>`:`<div class="panel filter-empty"><span>没有同时满足这些条件的伙伴</span><p>减少一个筛选条件，或者换一项技能看看。</p><button class="ghost" data-clear-hall>清除筛选</button></div>`;
+  frame(`${pageHead("星期日 · 发现新的可能", "技能广场")}<section class="hero"><div><h2>你想学的，<br>刚好有人会。</h2><p>逛逛大厅里的真实技能，找到今晚就能聊起来的学习伙伴。</p><button class="primary" data-radar>开启配对雷达 →</button></div>${top?`<div class="hero-match"><strong>今日最佳组合 · ${top.score}%</strong><div class="swap-route"><span>你学 ${esc(top.skillPair.learn)}</span><b class="route-arrow">⇄</b><span>你教 ${esc(top.skillPair.teach)}</span></div></div>`:""}</section><section class="discovery-section"><div class="section-head"><div><p class="eyebrow">跳出当前画像</p><h2>探索新技能</h2></div><span class="section-note">根据大厅里正在分享的技能推荐</span></div><div class="discovery-grid">${discoveries.map(discoveryCard).join("")}</div></section><div class="content-grid"><section><div class="section-head"><div><p class="eyebrow">技能大厅</p><h2>正在找搭子的伙伴</h2></div><span class="result-count">找到 ${ranked.length} 位</span></div>${filters}${results}</section><aside class="side-stack"><section class="panel side-panel"><div class="section-head"><h3>本周共学</h3><a class="text-link" href="#/classroom">课程表</a></div>${scheduleList()}</section><section class="panel side-panel"><div class="section-head"><h3>同学新动态</h3><a class="text-link" href="#/social">进入同学圈</a></div>${miniPosts()}</section></aside></div>`);
 }
 
 function resultCard(result) {
@@ -188,6 +201,12 @@ function chooseSelectOption(shell, option) {
     else item.level = Number(value);
   }
   if (shell.dataset.pref) wizardDraft[shell.dataset.pref] = shell.dataset.pref === "duration" ? Number(value) : value;
+  if (shell.dataset.hallSkill !== undefined) {
+    hallFilters.skill=value;
+    closeSelectMenus();
+    render();
+    return;
+  }
   closeSelectMenus();
   shell.querySelector(".select-trigger")?.focus();
 }
@@ -197,6 +216,9 @@ document.addEventListener("click", (event) => {
   if(target.matches(".select-trigger")){toggleSelect(target.closest(".select-shell"));return;}
   if(target.matches(".select-option")){chooseSelectOption(target.closest(".select-shell"),target);return;}
   if(!target.closest(".select-shell"))closeSelectMenus();
+  if(target.dataset.clearHall!==undefined){hallFilters={evening:false,online:false,local:false,skill:""};render();return;}
+  if(target.dataset.hallFilter){const key=target.dataset.hallFilter;hallFilters[key]=!hallFilters[key];render();return;}
+  if(target.dataset.discoverSkill){hallFilters.skill=target.dataset.discoverSkill;render();document.querySelector(".content-grid")?.scrollIntoView({behavior:"smooth"});return;}
   if(target.dataset.close!==undefined){closeModal();return;}
   if(target.dataset.create!==undefined||target.dataset.editProfile!==undefined){requireAccount(()=>{startOnboarding();});return;}
   if(target.dataset.radar!==undefined){location.hash="#/matches";return;}
