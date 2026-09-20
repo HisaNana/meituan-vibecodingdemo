@@ -82,7 +82,7 @@ export function createInitialState() {
       { id: "session-demo-2", partnerId: "songran", title: "人像构图 · 试学", slot: "sat-am", time: "10:00", duration: 20, status: "待确认" }
     ],
     notes: [{ id: "note-1", title: "自动化脚本的三个步骤", body: "读取数据 → 处理规则 → 输出结果。先让最小流程跑通。", updatedAt: "今天 09:40" }],
-    assignments: [{ id: "assignment-1", title: "整理 20 张旅行照片", course: "手机摄影交换课", due: "周日前", done: false }],
+    assignments: [{ id: "assignment-1", title: "整理 20 张旅行照片", criteria: "选出 5 张并写下构图取舍", course: "手机摄影交换课", due: "周日前", status: "待完成", done: false }],
     posts: [
       { id: "post-1", author: "Mia", avatar: "M", color: "pink", type: "作业", content: "第一次用三个真实场景练习英语自我介绍，终于不再只会背模板。", likes: 18, liked: false, comments: 4, time: "12 分钟前" },
       { id: "post-2", author: "周予安", avatar: "周", color: "green", type: "笔记", content: "吉他和弦转换：我最容易卡住的两个地方，以及今天有效的慢练方法。", likes: 23, liked: false, comments: 6, time: "1 小时前" },
